@@ -5,7 +5,19 @@ import json
 xml_doc = str(sys.argv[1])
 tree = ET.parse(xml_doc)
 root = tree.getroot()
-flight_information = {}
+#This section is going to make some assumptions in regards to scalability. The XML documents provided either come from IATA or #Opentravel, and the biggest assumption in regards to this is that IATA follows one format consistently, and Opentravel follows the #other. 
+#Here is where we'll find out which file is presented and how it will be handled.
+
+for child in root[0]:
+    print(child.tag)
+    print(type(child.tag))
+    if 'IATA' in child.tag:
+        print("IATA flight information recieved!")
+    elif 'OTA' in child.tag:
+        print("OpenTravel flight information received!")
+    else:
+        print("Invalid File Type")
+
 #These are helpful links to finish this project:
 #https://docs.python.org/3/library/xml.etree.elementtree.html is my ElementTree documentation
 #https://anenadic.github.io/2014-11-10-manchester/novice/python/06-cmdline-non-interactive.html is running Python from the command line
@@ -28,18 +40,6 @@ class Seats:
         self.seat_availability = seat_availability
         self.seat_type = seat_type
 
-#Naming convention:
-#flight_number = Plane(stuff needed)
-#row_number = Row(stuffies)
-#seat_id = Seat(stuff)
-
-for child in root[0][0][1][0][0]:
-    print(child.tag, child.attrib)
-    #flight_information[k] = child.attrib[k] for k in child attrib
-    #print([(k, child.attrib[k]) for k in child.attrib])
-    #for key, value in child.attrib():
-    #    flight_information[key] = value'
-
 for flight_departure_loc in root.iter('{http://www.opentravel.org/OTA/2003/05/common/}DepartureAirport'):
      flight_departure_loc = (str(flight_departure_loc.attrib))
 
@@ -51,7 +51,7 @@ for flight_equip_type in root.iter('{http://www.opentravel.org/OTA/2003/05/commo
 
 print("Flight Arrival: " + flight_arrival_loc)
 print("Flight Departure: " + flight_departure_loc)
-print("Flight Equipment: " + flight_equip_types)
+print("Flight Equipment: " + flight_equip_type)
 #print(flight_information)
 #This is the basic layout for the command to get the JSON file. For now, we're working on how to get it in the first place. 
 #json_file_information = json.dumps(flight_information)
