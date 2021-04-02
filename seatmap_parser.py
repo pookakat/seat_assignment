@@ -7,16 +7,38 @@ tree = ET.parse(xml_doc)
 root = tree.getroot()
 #This section is going to make some assumptions in regards to scalability. The XML documents provided either come from IATA or #Opentravel, and the biggest assumption in regards to this is that IATA follows one format consistently, and Opentravel follows the #other. 
 #Here is where we'll find out which file is presented and how it will be handled.
+def ota_flight_handling():
+    for flight_departure_loc in root.iter('{http://www.opentravel.org/OTA/2003/05/common/}DepartureAirport'):
+        flight_departure_loc = (str(flight_departure_loc.attrib))
+
+    for flight_arrival_loc in root.iter('{http://www.opentravel.org/OTA/2003/05/common/}ArrivalAirport'):
+        flight_arrival_loc = (str(flight_arrival_loc.attrib))
+
+    for flight_equip_type in root.iter('{http://www.opentravel.org/OTA/2003/05/common/}Equipment'):
+        flight_equip_type = (str(flight_equip_type.attrib))
+
+    print("Flight Arrival: " + flight_arrival_loc)
+    print("Flight Departure: " + flight_departure_loc)
+    print("Flight Equipment: " + flight_equip_type)
+
+def iata_flight_handling(url_information):
+    print(url_information)
+    print(str(root.iter('{http://www.iata.org/IATA/EDIST/2017.2}Departure[Time]')))
 
 for child in root[0]:
-    print(child.tag)
-    print(type(child.tag))
     if 'IATA' in child.tag:
         print("IATA flight information recieved!")
+        strt, end = "{", "}"
+        original_url = str(child.tag)
+        print(original_url)
+        url_information = ''.join(list(filter(lambda chr : chr >= strt and chr <= end, original_url)))
+        iata_flight_handling(url_information)
     elif 'OTA' in child.tag:
         print("OpenTravel flight information received!")
+        ota_flight_handling()
     else:
         print("Invalid File Type")
+
 
 #These are helpful links to finish this project:
 #https://docs.python.org/3/library/xml.etree.elementtree.html is my ElementTree documentation
@@ -40,18 +62,7 @@ class Seats:
         self.seat_availability = seat_availability
         self.seat_type = seat_type
 
-for flight_departure_loc in root.iter('{http://www.opentravel.org/OTA/2003/05/common/}DepartureAirport'):
-     flight_departure_loc = (str(flight_departure_loc.attrib))
 
-for flight_arrival_loc in root.iter('{http://www.opentravel.org/OTA/2003/05/common/}ArrivalAirport'):
-    flight_arrival_loc = (str(flight_arrival_loc.attrib))
-
-for flight_equip_type in root.iter('{http://www.opentravel.org/OTA/2003/05/common/}Equipment'):
-    flight_equip_type = (str(flight_equip_type.attrib))
-
-print("Flight Arrival: " + flight_arrival_loc)
-print("Flight Departure: " + flight_departure_loc)
-print("Flight Equipment: " + flight_equip_type)
 #print(flight_information)
 #This is the basic layout for the command to get the JSON file. For now, we're working on how to get it in the first place. 
 #json_file_information = json.dumps(flight_information)
