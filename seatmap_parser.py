@@ -7,14 +7,25 @@ tree = ET.parse(xml_doc)
 root = tree.getroot()
 #This section is going to make some assumptions in regards to scalability. The XML documents provided either come from IATA or #Opentravel, and the biggest assumption in regards to this is that IATA follows one format consistently, and Opentravel follows the #other. 
 #Here is where we'll find out which file is presented and how it will be handled.
-def ota_flight_handling():
-    for flight_departure_loc in root.iter('{http://www.opentravel.org/OTA/2003/05/common/}DepartureAirport'):
-        flight_departure_loc = (str(flight_departure_loc.attrib))
+def strip_url_from_tag(child_info):
+    entire_tag = str(child_info)
+    url_information, unused_portion = entire_tag.split("}")
+    url_information += "}"
+    return url_information
 
-    for flight_arrival_loc in root.iter('{http://www.opentravel.org/OTA/2003/05/common/}ArrivalAirport'):
-        flight_arrival_loc = (str(flight_arrival_loc.attrib))
+def get_location_code(location_dict):
+    airport_code = str(location_dict.get('LocationCode'))
+    return airport_code
 
-    for flight_equip_type in root.iter('{http://www.opentravel.org/OTA/2003/05/common/}Equipment'):
+
+def ota_flight_handling(url_information):
+    for flight_departure_loc in root.iter('{}DepartureAirport'.format(url_information)):
+        flight_departure_loc = get_location_code(flight_departure_loc.attrib)
+
+    for flight_arrival_loc in root.iter('{}ArrivalAirport'.format(url_information)):
+        flight_arrival_loc = get_location_code(flight_arrival_loc.attrib)
+
+    for flight_equip_type in root.iter('{}Equipment'.format(url_information)):
         flight_equip_type = (str(flight_equip_type.attrib))
 
     print("Flight Arrival: " + flight_arrival_loc)
@@ -22,20 +33,17 @@ def ota_flight_handling():
     print("Flight Equipment: " + flight_equip_type)
 
 def iata_flight_handling(url_information):
-    print(url_information)
-    print(str(root.iter('{http://www.iata.org/IATA/EDIST/2017.2}Departure[Time]')))
+    print(str(root.iter('{}Departure[Time]'.format(url_information))))
 
 for child in root[0]:
     if 'IATA' in child.tag:
         print("IATA flight information recieved!")
-        strt, end = "{", "}"
-        original_url = str(child.tag)
-        print(original_url)
-        url_information = ''.join(list(filter(lambda chr : chr >= strt and chr <= end, original_url)))
+        url_information = strip_url_from_tag(child.tag)
         iata_flight_handling(url_information)
     elif 'OTA' in child.tag:
         print("OpenTravel flight information received!")
-        ota_flight_handling()
+        url_information = strip_url_from_tag(child.tag)
+        ota_flight_handling(url_information)
     else:
         print("Invalid File Type")
 
