@@ -27,6 +27,29 @@ def get_equipment(equipment_dict):
     flight_equipment = str(equipment_dict.get('AirEquipType'))
     return flight_equipment
 
+def get_seat_info(seat_dict):
+    seat_id = str(seat_dict.get('SeatNumber'))
+    avail_status = str(seat_dict.get('AvailableInd'))
+    if avail_status == 'false':
+        avail_status = 'Unavailable'
+    else:
+        avail_status = 'Available'
+    return seat_id, avail_status
+
+def get_fees_info(fees_dict):
+    amount = float(fees_dict.get('Amount'))
+    decimal = float(fees_dict.get("DecimalPlaces"))
+    currency = str(fees_dict.get('CurrencyCode'))
+    places = 10 ** -decimal
+    total = amount * places
+    price = '{:,.2f} '.format(total) + currency
+    return price
+
+def get_class(row_info_dict):
+    class_type = str(row_info_dict.get('CabinType'))
+    row_number = str(row_info_dict.get('RowNumber'))
+    return class_type, row_number
+
 def ota_flight_handling(url_information):
     global row_numbers
     for flight_departure_date_time in root.iter('{}FlightSegmentInfo'.format(url_information)):
@@ -42,15 +65,25 @@ def ota_flight_handling(url_information):
         flight_equip_type = (get_equipment(flight_equip_type.attrib))
 
     for row_info in root.iter('{}RowInfo'.format(url_information)):
-        print(row_info.attrib)
         for seat_info in row_info.iter('{}SeatInfo'.format(url_information)):
-            print(seat_info.attrib)
             for seat in seat_info.iter('{}Summary'.format(url_information)):
-                print(seat.attrib)
+#                print(seat.attrib)
+                seat = seat.attrib
+                seat_id, avail_status = get_seat_info(seat)
+                print(seat_id, avail_status)
             for features in seat_info.iter('{}Features'.format(url_information)):
-                print(features.text)
-        
-
+                feature_check = features.text
+                if feature_check != "Other_":
+                    feature = feature_check
+                    print(feature)
+            for service in seat_info.iter('{}Service'.format(url_information)):
+                for fees in service.iter('{}Fee'.format(url_information)):
+                    fees = fees.attrib
+                    price = get_fees_info(fees)
+                    print(price)
+        row_info = row_info.attrib
+        class_type, row_number = get_class(row_info)
+#        print(class_type, row_number, seat_id, avail_status, feature)
 
     print("Departure Date and Time: " + flight_departure_date_time)
     print("Flight Arrival: " + flight_arrival_loc)
