@@ -85,21 +85,12 @@ def ota_flight_handling(url_information):
     for flight_equip_type in root.iter('{}Equipment'.format(url_information)):
         flight_equip_type = (get_equipment(flight_equip_type.attrib))
 
-    previous_seat_number = 1
     for row_info in root.iter('{}RowInfo'.format(url_information)):
         price = ""
         for seat_info in row_info.iter('{}SeatInfo'.format(url_information)):
             for seat in seat_info.iter('{}Summary'.format(url_information)):
                 seat = seat.attrib
                 seat_id, avail_status = get_seat_info(seat)
-                seat_row_number = int(seat_id.replace(seat_id[-1], ""))
-                print(seat_row_number)
-                print("Next")
-                if previous_seat_number == seat_row_number:
-                    print("yes")
-                    print(previous_seat_number)
-                    previous_seat_number = seat_row_number
-                    break
             for features in seat_info.iter('{}Features'.format(url_information)):
                 feature_check = features.text
                 if feature_check != "Other_":
