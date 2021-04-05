@@ -8,7 +8,8 @@ root = tree.getroot()
 
 #This section is going to make some assumptions in regards to scalability. The XML documents provided either come from IATA or #Opentravel, and the biggest assumption in regards to this is that IATA follows one format consistently, and Opentravel follows the #other. 
 #Here is where we'll find out which file is presented and how it will be handled.
-row_numbers = []
+Rows = []
+Seats = []
 def strip_url_from_tag(child_info):
     entire_tag = str(child_info)
     url_information, unused_portion = entire_tag.split("}")
@@ -51,7 +52,27 @@ def get_class(row_info_dict):
     return class_type, row_number
 
 def ota_flight_handling(url_information):
-    global row_numbers
+    class FlightObject:
+        def __init__ (self, departure_date_time, departure_loc, arrival_loc, equipment_type, row):
+            self.departure_date_time = departure_date_time
+            self.departure_loc = departure_loc
+            self.arrival_loc = arrival_loc
+            self.equipment_type = equipment_type
+            self.row = row
+
+    class RowObject:
+        def __init__ (self, class_type, row_numbers, seat):
+            self.class_type = class_type
+            self.row_numbers = row_numbers
+            self.seat = seat
+
+    class SeatObject:
+        def __init__ (self, seat_id, avail_status, feature, price):
+            self.seat_id = seat_id
+            self.avail_status = avail_status
+            self.feature = feature
+            self.price = price
+
     for flight_departure_date_time in root.iter('{}FlightSegmentInfo'.format(url_information)):
         flight_departure_date_time = get_date_time(flight_departure_date_time.attrib)
 
@@ -65,31 +86,29 @@ def ota_flight_handling(url_information):
         flight_equip_type = (get_equipment(flight_equip_type.attrib))
 
     for row_info in root.iter('{}RowInfo'.format(url_information)):
+        price = ""
         for seat_info in row_info.iter('{}SeatInfo'.format(url_information)):
             for seat in seat_info.iter('{}Summary'.format(url_information)):
-#                print(seat.attrib)
                 seat = seat.attrib
                 seat_id, avail_status = get_seat_info(seat)
-                print(seat_id, avail_status)
             for features in seat_info.iter('{}Features'.format(url_information)):
                 feature_check = features.text
                 if feature_check != "Other_":
                     feature = feature_check
-                    print(feature)
             for service in seat_info.iter('{}Service'.format(url_information)):
                 for fees in service.iter('{}Fee'.format(url_information)):
                     fees = fees.attrib
                     price = get_fees_info(fees)
-                    print(price)
+            seat_object = SeatObject(seat_id, avail_status, feature, price)
+            seat = seat_object.__dict__
+            Seats.append(seat)
         row_info = row_info.attrib
         class_type, row_number = get_class(row_info)
-#        print(class_type, row_number, seat_id, avail_status, feature)
-
-    print("Departure Date and Time: " + flight_departure_date_time)
-    print("Flight Arrival: " + flight_arrival_loc)
-    print("Flight Departure: " + flight_departure_loc)
-    print("Flight Equipment: " + flight_equip_type)
-    print(row_numbers)
+        row_object = RowObject(class_type, row_number, Seats)
+        row = row_object.__dict__
+        Rows.append(row)
+    flight_obect = FlightObject(flight_departure_date_time, flight_departure_loc, flight_arrival_loc, flight_equip_type, Rows)
+    return flight_obect
 
 def iata_flight_handling(url_information):
     print('No programming yet to handle {}. Please try again later'.format(url_information))
@@ -99,15 +118,20 @@ for child in root[0]:
         print("IATA flight information recieved!")
         url_information = strip_url_from_tag(child.tag)
         iata_flight_handling(url_information)
+#       No code yet for this type, so I'm just going to leave this line in for later
+#         flight = iata_flight_handling(url_information)     
     elif 'OTA' in child.tag:
         print("OpenTravel flight information received!")
         url_information = strip_url_from_tag(child.tag)
-        ota_flight_handling(url_information)
+        flight = ota_flight_handling(url_information)
     else:
         print("Invalid File Type")
 
 
-
+file_name = xml_doc.replace(".xml", "_parsed.json")
+flight_info = flight.__dict__
+with open(file_name, 'w') as outfile:
+    json.dump(flight_info, outfile)
 #These are helpful links to finish this project:
 #https://docs.python.org/3/library/xml.etree.elementtree.html is my ElementTree documentation
 #https://anenadic.github.io/2014-11-10-manchester/novice/python/06-cmdline-non-interactive.html is running Python from the command line
