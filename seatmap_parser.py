@@ -10,6 +10,27 @@ root = tree.getroot()
 #Here is where we'll find out which file is presented and how it will be handled.
 Rows = []
 Seats = []
+class FlightObject:
+    def __init__ (self, departure_date_time, departure_loc, arrival_loc, equipment_type, row):
+        self.departure_date_time = departure_date_time
+        self.departure_loc = departure_loc
+        self.arrival_loc = arrival_loc
+        self.equipment_type = equipment_type
+        self.row = row
+
+class RowObject:
+    def __init__ (self, class_type, row_numbers, seat):
+        self.class_type = class_type
+        self.row_numbers = row_numbers
+        self.seat = seat
+
+class SeatObject:
+    def __init__ (self, seat_id, avail_status, feature, price):
+        self.seat_id = seat_id
+        self.avail_status = avail_status
+        self.feature = feature
+        self.price = price
+
 def strip_url_from_tag(child_info):
     entire_tag = str(child_info)
     url_information, unused_portion = entire_tag.split("}")
@@ -52,27 +73,6 @@ def get_class(row_info_dict):
     return class_type, row_number
 
 def ota_flight_handling(url_information):
-    class FlightObject:
-        def __init__ (self, departure_date_time, departure_loc, arrival_loc, equipment_type, row):
-            self.departure_date_time = departure_date_time
-            self.departure_loc = departure_loc
-            self.arrival_loc = arrival_loc
-            self.equipment_type = equipment_type
-            self.row = row
-
-    class RowObject:
-        def __init__ (self, class_type, row_numbers, seat):
-            self.class_type = class_type
-            self.row_numbers = row_numbers
-            self.seat = seat
-
-    class SeatObject:
-        def __init__ (self, seat_id, avail_status, feature, price):
-            self.seat_id = seat_id
-            self.avail_status = avail_status
-            self.feature = feature
-            self.price = price
-
     for flight_departure_date_time in root.iter('{}FlightSegmentInfo'.format(url_information)):
         flight_departure_date_time = get_date_time(flight_departure_date_time.attrib)
 
@@ -85,13 +85,21 @@ def ota_flight_handling(url_information):
     for flight_equip_type in root.iter('{}Equipment'.format(url_information)):
         flight_equip_type = (get_equipment(flight_equip_type.attrib))
 
+    previous_seat_number = 1
     for row_info in root.iter('{}RowInfo'.format(url_information)):
         price = ""
-        a_count = 0
         for seat_info in row_info.iter('{}SeatInfo'.format(url_information)):
             for seat in seat_info.iter('{}Summary'.format(url_information)):
                 seat = seat.attrib
                 seat_id, avail_status = get_seat_info(seat)
+                seat_row_number = int(seat_id.replace(seat_id[-1], ""))
+                print(seat_row_number)
+                print("Next")
+                if previous_seat_number == seat_row_number:
+                    print("yes")
+                    print(previous_seat_number)
+                    previous_seat_number = seat_row_number
+                    break
             for features in seat_info.iter('{}Features'.format(url_information)):
                 feature_check = features.text
                 if feature_check != "Other_":
@@ -100,11 +108,6 @@ def ota_flight_handling(url_information):
                 for fees in service.iter('{}Fee'.format(url_information)):
                     fees = fees.attrib
                     price = get_fees_info(fees)
-            if seat_id[-1] == "A": 
-                a_count += 1
-            else:   
-                if a_count > 1:
-                    continue
             seat_object = SeatObject(seat_id, avail_status, feature, price)
             seat = seat_object.__dict__
             Seats.append(seat)
