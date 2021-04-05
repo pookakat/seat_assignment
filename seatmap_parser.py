@@ -87,6 +87,7 @@ def ota_flight_handling(url_information):
 
     for row_info in root.iter('{}RowInfo'.format(url_information)):
         price = ""
+        a_count = 0
         for seat_info in row_info.iter('{}SeatInfo'.format(url_information)):
             for seat in seat_info.iter('{}Summary'.format(url_information)):
                 seat = seat.attrib
@@ -99,6 +100,11 @@ def ota_flight_handling(url_information):
                 for fees in service.iter('{}Fee'.format(url_information)):
                     fees = fees.attrib
                     price = get_fees_info(fees)
+            if seat_id[-1] == "A": 
+                a_count += 1
+            else:   
+                if a_count > 1:
+                    continue
             seat_object = SeatObject(seat_id, avail_status, feature, price)
             seat = seat_object.__dict__
             Seats.append(seat)
