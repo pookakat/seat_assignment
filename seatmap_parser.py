@@ -30,6 +30,9 @@ class SeatObject:
         self.feature = feature
         self.price = price
 
+#This section is for OpenTravel xml processing. In the event that there's a bit that IATA will use, these will be recycled, but
+#IATA and OpenTravel apparently didn't get each other's memos on how to build their respective websites.
+
 def strip_url_from_tag(child_info):
     entire_tag = str(child_info)
     url_information, unused_portion = entire_tag.split("}")
@@ -109,6 +112,9 @@ def ota_flight_handling(url_information):
         Rows.append(row)
     flight_obect = FlightObject(flight_departure_date_time, flight_departure_loc, flight_arrival_loc, flight_equip_type, Rows)
     return flight_obect
+
+#The following section is to handle IATA's flight information XML file. Again, any functions not found therein are likely in
+#the section above (OpenTravel's), but it's highly unlikely much code will be shared other than classes.
 
 def iata_flight_handling(url_information):
     print('No programming yet to handle {}. Please try again later'.format(url_information))
