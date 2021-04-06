@@ -9,7 +9,6 @@ root = tree.getroot()
 #This section is going to make some assumptions in regards to scalability. The XML documents provided either come from IATA or #Opentravel, and the biggest assumption in regards to this is that IATA follows one format consistently, and Opentravel follows the #other. 
 #Here is where we'll find out which file is presented and how it will be handled.
 Rows = []
-Seats = []
 class FlightObject:
     def __init__ (self, departure_date_time, departure_loc, arrival_loc, equipment_type, row):
         self.departure_date_time = departure_date_time
@@ -86,6 +85,7 @@ def ota_flight_handling(url_information):
         flight_equip_type = (get_equipment(flight_equip_type.attrib))
 
     for row_info in root.iter('{}RowInfo'.format(url_information)):
+        Seats = []
         price = ""
         for seat_info in row_info.iter('{}SeatInfo'.format(url_information)):
             for seat in seat_info.iter('{}Summary'.format(url_information)):
