@@ -39,21 +39,17 @@ def strip_url_from_tag(child_info):
     url_information += "}"
     return url_information
 
-def get_date_time(date_time_dict):
-    date_time = str(date_time_dict.get('DepartureDateTime'))
-    return date_time
+def get_information(used_dict, info_needed):
+    info = str(used_dict.get(info_needed))
+    return info
 
-def get_location_code(location_dict):
-    airport_code = str(location_dict.get('LocationCode'))
-    return airport_code
-
-def get_equipment(equipment_dict):
-    flight_equipment = str(equipment_dict.get('AirEquipType'))
-    return flight_equipment
+def make_float(info_to_convert):
+    converted_to_float = float(info_to_convert)
+    return converted_to_float
 
 def get_seat_info(seat_dict):
-    seat_id = str(seat_dict.get('SeatNumber'))
-    avail_status = str(seat_dict.get('AvailableInd'))
+    seat_id = get_information(seat_dict, 'SeatNumber')
+    avail_status = get_information(seat_dict, 'AvailableInd')
     if avail_status == 'false':
         avail_status = 'Unavailable'
     else:
@@ -61,31 +57,33 @@ def get_seat_info(seat_dict):
     return seat_id, avail_status
 
 def get_fees_info(fees_dict):
-    amount = float(fees_dict.get('Amount'))
-    decimal = float(fees_dict.get("DecimalPlaces"))
-    currency = str(fees_dict.get('CurrencyCode'))
+    price_amount = get_information(fees_dict, 'Amount')
+    amount = make_float(price_amount)
+    decimal_amount = get_information(fees_dict, 'DecimalPlaces')
+    decimal = make_float(decimal_amount)
+    currency = get_information(fees_dict, 'CurrencyCode')
     places = 10 ** -decimal
     total = amount * places
     price = '{:,.2f} '.format(total) + currency
     return price
 
 def get_class(row_info_dict):
-    class_type = str(row_info_dict.get('CabinType'))
-    row_number = str(row_info_dict.get('RowNumber'))
+    class_type = get_information(row_info_dict, 'CabinType')
+    row_number = get_information(row_info_dict, 'RowNumber')
     return class_type, row_number
 
 def ota_flight_handling(url_information):
     for flight_departure_date_time in root.iter('{}FlightSegmentInfo'.format(url_information)):
-        flight_departure_date_time = get_date_time(flight_departure_date_time.attrib)
+        flight_departure_date_time = get_information(flight_departure_date_time.attrib,'DepartureDateTime')
 
     for flight_departure_loc in root.iter('{}DepartureAirport'.format(url_information)):
-        flight_departure_loc = get_location_code(flight_departure_loc.attrib)
+        flight_departure_loc = get_information(flight_departure_loc.attrib, 'LocationCode')
 
     for flight_arrival_loc in root.iter('{}ArrivalAirport'.format(url_information)):
-        flight_arrival_loc = get_location_code(flight_arrival_loc.attrib)
+        flight_arrival_loc = get_information(flight_arrival_loc.attrib, 'LocationCode')
 
     for flight_equip_type in root.iter('{}Equipment'.format(url_information)):
-        flight_equip_type = (get_equipment(flight_equip_type.attrib))
+        flight_equip_type = (get_information(flight_equip_type.attrib, 'AirEquipType'))
 
     for row_info in root.iter('{}RowInfo'.format(url_information)):
         Seats = []
