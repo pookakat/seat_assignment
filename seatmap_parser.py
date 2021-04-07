@@ -83,7 +83,7 @@ def ota_flight_handling(url_information):
         flight_arrival_loc = get_information(flight_arrival_loc.attrib, 'LocationCode')
 
     for flight_equip_type in root.iter('{}Equipment'.format(url_information)):
-        flight_equip_type = (get_information(flight_equip_type.attrib, 'AirEquipType'))
+        flight_equip_type = get_information(flight_equip_type.attrib, 'AirEquipType')
 
     for row_info in root.iter('{}RowInfo'.format(url_information)):
         Seats = []
@@ -115,6 +115,8 @@ def ota_flight_handling(url_information):
 #the section above (OpenTravel's), but it's highly unlikely much code will be shared other than classes.
 
 def iata_flight_handling(url_information):
+    for child in root:
+        print(child.tag, child.attrib)
     print('No programming yet to handle {}. Please try again later'.format(url_information))
 
 for child in root[0]:
