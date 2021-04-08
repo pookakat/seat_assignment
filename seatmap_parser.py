@@ -41,6 +41,8 @@ def strip_url_from_tag(child_info):
 
 def get_information(used_dict, info_needed):
     info = str(used_dict.get(info_needed))
+    if info_needed == 'Amount' or info_needed == 'DecimalPlaces':
+        info = make_float(info)
     return info
 
 def make_float(info_to_convert):
@@ -57,12 +59,10 @@ def get_seat_info(seat_dict):
     return seat_id, avail_status
 
 def get_fees_info(fees_dict):
-    price_amount = get_information(fees_dict, 'Amount')
-    amount = make_float(price_amount)
-    decimal_amount = get_information(fees_dict, 'DecimalPlaces')
-    decimal = make_float(decimal_amount)
+    amount = get_information(fees_dict, 'Amount')
+    decimal = get_information(fees_dict, 'DecimalPlaces')
     currency = get_information(fees_dict, 'CurrencyCode')
-    places = 10 ** -decimal
+    places = 10 ** (-1 * decimal)
     total = amount * places
     price = '{:,.2f} '.format(total) + currency
     return price
@@ -138,6 +138,7 @@ file_name = xml_doc.replace(".xml", "_parsed.json")
 flight_info = flight.__dict__
 with open(file_name, 'w') as outfile:
     json.dump(flight_info, outfile)
+print("Parsing complete! Parsed document found at {}".format(file_name))
 #These are helpful links to finish this project:
 #https://docs.python.org/3/library/xml.etree.elementtree.html is my ElementTree documentation
 #https://anenadic.github.io/2014-11-10-manchester/novice/python/06-cmdline-non-interactive.html is running Python from the command line
