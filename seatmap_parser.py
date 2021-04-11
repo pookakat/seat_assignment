@@ -116,7 +116,13 @@ def ota_flight_handling(url_information):
 
 def iata_flight_handling(url_information):
     for child in root:
-        print(child.tag, child.attrib)
+        for alacarte in child.iter('{}ALaCarteOffer'.format(url_information)):
+            for alacarte_offer in alacarte.iter('{}ALaCarteOfferItem'.format(url_information)):
+                print(alacarte_offer.tag, alacarteoffer.attrib)
+                offer_item_id = get_information(alacarte_offer.attrib, 'OfferItemID')
+                print(offer_item_id)
+                for 
+                    
     print('No programming yet to handle {}. Please try again later'.format(url_information))
 
 for child in root[0]:
