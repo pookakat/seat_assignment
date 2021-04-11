@@ -45,6 +45,26 @@ def get_information(used_dict, info_needed):
         info = make_float(info)
     return info
 
+def flight_departure(url_information):
+    for flight_departure_date_time in root.iter('{}FlightSegmentInfo'.format(url_information)):
+        flight_departure_date_time = get_information(flight_departure_date_time.attrib,'DepartureDateTime')
+        return flight_departure_date_time
+
+def departure_loc(url_information):
+    for flight_departure_loc in root.iter('{}DepartureAirport'.format(url_information)):
+        flight_departure_loc = get_information(flight_departure_loc.attrib, 'LocationCode')
+        return flight_departure_loc
+
+def arrival_loc(url_information):
+    for flight_arrival_loc in root.iter('{}ArrivalAirport'.format(url_information)):
+        flight_arrival_loc = get_information(flight_arrival_loc.attrib, 'LocationCode')
+        return flight_arrival_loc
+
+def equipment_type(url_information):
+    for flight_equip_type in root.iter('{}Equipment'.format(url_information)):
+        flight_equip_type = get_information(flight_equip_type.attrib, 'AirEquipType')
+        return flight_equip_type
+
 def make_float(info_to_convert):
     converted_to_float = float(info_to_convert)
     return converted_to_float
@@ -73,17 +93,10 @@ def get_class(row_info_dict):
     return class_type, row_number
 
 def ota_flight_handling(url_information):
-    for flight_departure_date_time in root.iter('{}FlightSegmentInfo'.format(url_information)):
-        flight_departure_date_time = get_information(flight_departure_date_time.attrib,'DepartureDateTime')
-
-    for flight_departure_loc in root.iter('{}DepartureAirport'.format(url_information)):
-        flight_departure_loc = get_information(flight_departure_loc.attrib, 'LocationCode')
-
-    for flight_arrival_loc in root.iter('{}ArrivalAirport'.format(url_information)):
-        flight_arrival_loc = get_information(flight_arrival_loc.attrib, 'LocationCode')
-
-    for flight_equip_type in root.iter('{}Equipment'.format(url_information)):
-        flight_equip_type = get_information(flight_equip_type.attrib, 'AirEquipType')
+    flight_departure_date_time = flight_departure(url_information)
+    flight_departure_loc = departure_loc(url_information)
+    flight_arrival_loc = arrival_loc(url_information)
+    flight_equip_type = equipment_type(url_information)
 
     for row_info in root.iter('{}RowInfo'.format(url_information)):
         Seats = []
@@ -118,10 +131,10 @@ def iata_flight_handling(url_information):
     for child in root:
         for alacarte in child.iter('{}ALaCarteOffer'.format(url_information)):
             for alacarte_offer in alacarte.iter('{}ALaCarteOfferItem'.format(url_information)):
-                print(alacarte_offer.tag, alacarteoffer.attrib)
+                print(alacarte_offer.tag, alacarte_offer.attrib)
                 offer_item_id = get_information(alacarte_offer.attrib, 'OfferItemID')
                 print(offer_item_id)
-                for 
+                
                     
     print('No programming yet to handle {}. Please try again later'.format(url_information))
 
