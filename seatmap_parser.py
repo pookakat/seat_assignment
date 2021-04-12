@@ -134,7 +134,9 @@ def iata_flight_handling(url_information):
                 print(alacarte_offer.tag, alacarte_offer.attrib)
                 offer_item_id = get_information(alacarte_offer.attrib, 'OfferItemID')
                 print(offer_item_id)
-                
+                for eligibility in alacarte_offer.iter('{}Eligibility'.format(url_information)):
+                    print(eligibility.attrib)
+                    print(eligibility[0].text)
                     
     print('No programming yet to handle {}. Please try again later'.format(url_information))
 
