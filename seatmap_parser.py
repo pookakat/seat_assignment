@@ -134,10 +134,16 @@ def iata_flight_handling(url_information):
                 print(alacarte_offer.tag, alacarte_offer.attrib)
                 offer_item_id = get_information(alacarte_offer.attrib, 'OfferItemID')
                 print(offer_item_id)
-                for eligibility in alacarte_offer.iter('{}Eligibility'.format(url_information)):
-                    print(eligibility.attrib)
-                    print(eligibility[0].text)
-                    
+                #this should be fetching the seat and returning things specific to that seat by order item.. I think. The offer
+                #should be checked against a passed variable. Current value is specifically for local testing for now.
+                if offer_item_id == 'OFIa20ae42f-6417-11eb-b326-15132ca0c3354':
+                    for eligibility in alacarte_offer.iter('{}Eligibility'.format(url_information)):
+                        print(eligibility.attrib)
+                        print(eligibility[0].text)
+                    for unit_price_detail in alacarte_offer.iter('{}UnitPriceDetail'.format(url_information)):
+                        for total_amount in unit_price_detail.iter('{}TotalAmount'.format(url_information)):
+                            for simple_currency_price in total_amount.iter('{}SimpleCurrencyPrice'.format(url_information)):
+                                print(simple_currency_price.attrib, simple_currency_price.text)
     print('No programming yet to handle {}. Please try again later'.format(url_information))
 
 for child in root[0]:
