@@ -143,6 +143,15 @@ def ota_flight_handling(url_information):
 #                        for total_amount in unit_price_detail.iter('{}TotalAmount'.format(url_information)):
 #                            for simple_currency_price in total_amount.iter('{}SimpleCurrencyPrice'.format(url_information)):
 #                                print(simple_currency_price.attrib, simple_currency_price.text)
+def check_row(url_information):
+    for child in root:
+        for cabin in child.iter('{}Cabin'.format(url_information)):
+            for cabin_layout in cabin.iter('{}CabinLayout'.format(url_information)):
+                for rows in cabin_layout.iter('{}Rows'.format(url_information)):
+                    first = rows.find('{}First'.format(url_information))
+                    last = rows.find('{}Last'.format(url_information))
+                    print(first.text, last.text)
+                    
 
 def iata_flight_handling(url_information):
     for child in root:
@@ -151,6 +160,8 @@ def iata_flight_handling(url_information):
             for cabin_layout in cabin.iter('{}CabinLayout'.format(url_information)):
                 for columns in cabin_layout.iter('{}Columns'.format(url_information)):
                     print(columns.attrib, columns.text)
+                    check_row(url_information)
+                
     print('No programming yet to handle {}. Please try again later'.format(url_information))
 
 for child in root[0]:
