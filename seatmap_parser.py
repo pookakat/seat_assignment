@@ -126,24 +126,31 @@ def ota_flight_handling(url_information):
 
 #The following section is to handle IATA's flight information XML file. Again, any functions not found therein are likely in
 #the section above (OpenTravel's), but it's highly unlikely much code will be shared other than classes.
+#def get_price_info(url_information, offer_id):
+#    for child in root:
+#        for alacarte in child.iter('{}ALaCarteOffer'.format(url_information)):
+#            for alacarte_offer in alacarte.iter('{}ALaCarteOfferItem'.format(url_information)):
+#                print(alacarte_offer.tag, alacarte_offer.attrib)
+#                offer_item_id = get_information(alacarte_offer.attrib, 'OfferItemID')
+#                print(offer_item_id)
+#                #this should be fetching the seat and returning things specific to that seat by order item.. I think. The offer
+#                #should be checked against a passed variable. Current value is specifically for local testing for now.
+#                if offer_item_id == 'OFIa20ae42f-6417-11eb-b326-15132ca0c3354':
+#                    for eligibility in alacarte_offer.iter('{}Eligibility'.format(url_information)):
+#                        print(eligibility.attrib)
+#                        print(eligibility[0].text)
+#                    for unit_price_detail in alacarte_offer.iter('{}UnitPriceDetail'.format(url_information)):
+#                        for total_amount in unit_price_detail.iter('{}TotalAmount'.format(url_information)):
+#                            for simple_currency_price in total_amount.iter('{}SimpleCurrencyPrice'.format(url_information)):
+#                                print(simple_currency_price.attrib, simple_currency_price.text)
 
 def iata_flight_handling(url_information):
     for child in root:
-        for alacarte in child.iter('{}ALaCarteOffer'.format(url_information)):
-            for alacarte_offer in alacarte.iter('{}ALaCarteOfferItem'.format(url_information)):
-                print(alacarte_offer.tag, alacarte_offer.attrib)
-                offer_item_id = get_information(alacarte_offer.attrib, 'OfferItemID')
-                print(offer_item_id)
-                #this should be fetching the seat and returning things specific to that seat by order item.. I think. The offer
-                #should be checked against a passed variable. Current value is specifically for local testing for now.
-                if offer_item_id == 'OFIa20ae42f-6417-11eb-b326-15132ca0c3354':
-                    for eligibility in alacarte_offer.iter('{}Eligibility'.format(url_information)):
-                        print(eligibility.attrib)
-                        print(eligibility[0].text)
-                    for unit_price_detail in alacarte_offer.iter('{}UnitPriceDetail'.format(url_information)):
-                        for total_amount in unit_price_detail.iter('{}TotalAmount'.format(url_information)):
-                            for simple_currency_price in total_amount.iter('{}SimpleCurrencyPrice'.format(url_information)):
-                                print(simple_currency_price.attrib, simple_currency_price.text)
+        for cabin in child.iter('{}Cabin'.format(url_information)):
+            print(cabin.tag, cabin.attrib)
+            for cabin_layout in cabin.iter('{}CabinLayout'.format(url_information)):
+                for columns in cabin_layout.iter('{}Columns'.format(url_information)):
+                    print(columns.attrib, columns.text)
     print('No programming yet to handle {}. Please try again later'.format(url_information))
 
 for child in root[0]:
@@ -162,7 +169,8 @@ for child in root[0]:
 
 
 file_name = xml_doc.replace(".xml", "_parsed.json")
-flight_info = flight.__dict__
+#make certain to uncomment this before running final program
+#flight_info = flight.__dict__
 with open(file_name, 'w') as outfile:
     json.dump(flight_info, outfile)
 print("Parsing complete! Parsed document found at {}".format(file_name))
