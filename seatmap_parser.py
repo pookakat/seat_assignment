@@ -144,23 +144,33 @@ def ota_flight_handling(url_information):
 #                            for simple_currency_price in total_amount.iter('{}SimpleCurrencyPrice'.format(url_information)):
 #                                print(simple_currency_price.attrib, simple_currency_price.text)
 def check_row(url_information):
+    layout_starting_row = []
     for child in root:
         for cabin in child.iter('{}Cabin'.format(url_information)):
             for cabin_layout in cabin.iter('{}CabinLayout'.format(url_information)):
                 for rows in cabin_layout.iter('{}Rows'.format(url_information)):
                     first = rows.find('{}First'.format(url_information))
                     last = rows.find('{}Last'.format(url_information))
-                    print(first.text, last.text)
-                    
+                    layout_starting_row.append(first.text)
+                    layout_ending_row = last.text                     
+    return layout_starting_row, layout_ending_row
 
 def iata_flight_handling(url_information):
+    first_row, last_row = check_row(url_information)
+    counter = 0
+    print(first_row)
     for child in root:
         for cabin in child.iter('{}Cabin'.format(url_information)):
             print(cabin.tag, cabin.attrib)
             for cabin_layout in cabin.iter('{}CabinLayout'.format(url_information)):
+                if len(first_row) - 1 > counter:
+                    print("First Row: ", first_row[counter], "- Last Row: ", str(int(first_row[counter+1]) - 1))
+                else:
+                    print("First Row: ", first_row[counter], "- Last Row: ", last_row)
                 for columns in cabin_layout.iter('{}Columns'.format(url_information)):
                     print(columns.attrib, columns.text)
-                    check_row(url_information)
+                counter += 1
+                    
                 
     print('No programming yet to handle {}. Please try again later'.format(url_information))
 
@@ -182,8 +192,8 @@ for child in root[0]:
 file_name = xml_doc.replace(".xml", "_parsed.json")
 #make certain to uncomment this before running final program
 #flight_info = flight.__dict__
-with open(file_name, 'w') as outfile:
-    json.dump(flight_info, outfile)
+#with open(file_name, 'w') as outfile:
+#    json.dump(flight_info, outfile)
 print("Parsing complete! Parsed document found at {}".format(file_name))
 #These are helpful links to finish this project:
 #https://docs.python.org/3/library/xml.etree.elementtree.html is my ElementTree documentation
