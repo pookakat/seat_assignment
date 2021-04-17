@@ -155,7 +155,7 @@ def check_row(url_information):
                     layout_ending_row = last.text                     
     return layout_starting_row, layout_ending_row
 
-def iata_flight_handling(url_information):
+def layout_handler(url_information):
     first_row, last_row = check_row(url_information)
     counter = 0
     print(first_row)
@@ -170,7 +170,10 @@ def iata_flight_handling(url_information):
                 for columns in cabin_layout.iter('{}Columns'.format(url_information)):
                     print(columns.attrib, columns.text)
                 counter += 1
-                    
+
+
+def iata_flight_handling(url_information):
+    layout_handler(url_information)        
                 
     print('No programming yet to handle {}. Please try again later'.format(url_information))
 
